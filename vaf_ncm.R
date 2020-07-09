@@ -119,7 +119,7 @@ main <- function() {
         vaf_full %>%
             filter(!is.na(ref), !is.na(alt)) %>%
             mutate(depth = ref + alt) %>%
-            filter(depth > 0 | !args$nonzero_read) %>%
+            filter(ifelse(args$nonzero_read, depth > 0, TRUE)) %>%
             group_by(sample) %>%
             summarise(mean_depth = mean(depth),
                       .groups = "drop")
