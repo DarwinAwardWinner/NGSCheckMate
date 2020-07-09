@@ -13,20 +13,18 @@ Rscript - "$@" <<"EOF";
 invisible('#')
 ## R code starts after this line
 
-library(conflicted)
-library(argparse)
-library(fs)
-library(readr)
-library(dplyr)
-conflict_prefer("filter", "dplyr")
-library(magrittr)
-library(assertthat)
-library(stringr)
-library(tidyr)
-
-library(future)
-library(future.apply)
-plan("multicore", workers = 2)
+suppressPackageStartupMessages({
+    library(conflicted)
+    library(argparse)
+    library(fs)
+    library(readr)
+    library(dplyr)
+    conflict_prefer("filter", "dplyr", quiet = TRUE)
+    library(magrittr)
+    library(assertthat)
+    library(stringr)
+    library(tidyr)
+})
 
 tsmsg <- function(...) {
     message(date(), ": ", ...)
@@ -65,8 +63,8 @@ main <- function() {
     parser$add_argument('-nz','--nonzero',
                         dest='nonzero_read',action='store_true',
                         help='Use the mean of non-zero depths across the SNPs as a reference depth (default: Use the mean depth across all the SNPs)')
-    test_args <- c("-f", "-I", "/sc/arion/projects/mscic/results/Ryan/NGSCheckMate/combined/vaf", "-O", "~/temp/ncm_test/", "-N", "WGS")
-    args <- parser$parse_args(test_args)
+    ## test_args <- c("-f", "-I", "/sc/arion/projects/mscic/results/Ryan/NGSCheckMate/combined/vaf", "-O", "~/temp/ncm_test/", "-N", "WGS")
+    args <- parser$parse_args(commandArgs(TRUE))
 
     tsmsg("Finding VAF files")
     vaf_files <- dir_ls(args$inputdirname, glob="*.vaf")# %>% head
@@ -80,7 +78,7 @@ main <- function() {
         alt = col_double(),
         vaf = col_double()
     )
-    vaf_tables <- future_lapply(vaf_files, read_tsv, col_types = col_spec)
+    vaf_tables <- lapply(vaf_files, read_tsv, col_types = col_spec)
     vaf_full <- bind_rows(vaf_tables, .id = "sample")
 
     tsmsg("Computing pairwise correlations")
@@ -195,6 +193,8 @@ main <- function() {
     mtext(seq(0, 1, 0.2), side = 2, at = seq(0, 1, 0.2), line = 1,   las = 2)
     dev.off()
 }
+
+main()
 
 EOF <- NULL
 EOF
