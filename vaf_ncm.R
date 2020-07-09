@@ -170,7 +170,7 @@ main <- function() {
         ## 0, to be consistent with vaf_ncm.py. Unlike vaf_ncm.py, I
         ## produce a symmetrical matrix and leave the diagonal (i.e.
         ## self matches) set to 1.
-        mutate(cor = pmin(cor, ifelse(matched, 1, 0))) %>%
+        mutate(cor = ifelse(matched, cor, 0)) %>%
         long_table_to_matrix(c("sampleA", "sampleB"), "cor") %>%
         as_tibble(rownames="sample_ID")
     matrix_out_file <- path(args$outdir, str_c(args$outfilename, "_corr_matrix.txt"))
