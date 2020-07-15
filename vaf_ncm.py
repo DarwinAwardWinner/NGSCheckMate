@@ -121,7 +121,7 @@ def createDataSetFromDir(base_dir, bedFile):
  #           sum_file[file] = sum                        
                      
             for key in features:
-                if glob_scores.__contains__(file):
+                if file in glob_scores:
                     glob_scores[file].append(scores[key])
                 else: 
                     glob_scores[file] = [scores[key]]
